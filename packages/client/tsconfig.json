@@ -1,18 +1,25 @@
 {
   "compilerOptions": {
-    "types": ["vite/client"],
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "module": "ESNext",
-    "lib": ["ESNext", "DOM"],
+    "module": "esnext",
+    "target": "esnext",
+    "allowJs": true, 
     "moduleResolution": "Node",
-    "strict": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
     "esModuleInterop": true,
-    "noEmit": true,
+    "allowSyntheticDefaultImports": true, // 需要开启
+    "strict": true,
+    "strictNullChecks": false,
+    "noEmitHelpers": true,
+    "sourceMap": false,
+    "experimentalDecorators": true,
     "skipLibCheck": true,
-    "jsx": "react-jsx"
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true
   },
-  "include": ["src"]
+  "include": [
+    "./assets",
+    "./src",
+    "./engine"
+  ]
 }

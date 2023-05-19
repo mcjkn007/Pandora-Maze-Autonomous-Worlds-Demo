@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/Main.ts"],
+  "sourcesContent": ["const { regClass, property } = Laya;\n\n@regClass('7bad1742-6eed-4d8d-81c0-501dc5bf03d6', '../src/Main.ts')\nexport class Main extends Laya.Script {\n\n    onStart() {\n        console.log(\"Game start\");\n    }\n}"],
+  "mappings": ";;;;;;;;;;;;;;;AAAA,MAAM,EAAE,UAAU,SAAS,IAAI;AAGxB,MAAM,OAAN,cAAmB,KAAK,OAAO;AAAA,IAElC,UAAU;AACN,cAAQ,IAAI,YAAY;AAAA,IAC5B;AAAA,EACJ;AALa;AAAA,SAAN;AAAA,IADN,SAAS,wCAAwC,gBAAgB;AAAA,KACrD;",
+  "names": []
+}
