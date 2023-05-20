@@ -1,1 +1,7 @@
 node_modules
+packages/client/temp
+packages/client/library
+packages/client/local
+packages/client/bin
+
+*.meta
