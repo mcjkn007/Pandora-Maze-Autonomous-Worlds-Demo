@@ -10,7 +10,7 @@
   "color": "#ffffff",
   "_$comp": [
     {
-      "_$type": "4f00c8eb-57a7-4481-a064-d6b7b28f78fc",
+      "_$type": "2203b124-7581-4171-bf26-47350aae9ab6",
       "scriptPath": "../src/game/gameCard.ts",
       "alphabet": {
         "_$ref": "j9fo4n50"

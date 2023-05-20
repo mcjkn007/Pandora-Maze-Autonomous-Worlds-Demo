@@ -1,6 +1,7 @@
 {
   "_$ver": 1,
   "_$id": "oufhqpla",
+  "_$runtime": "res://b33edd45-b3d0-4823-b4f3-d9d1f05f0101",
   "_$type": "Scene",
   "left": 0,
   "right": 0,
@@ -12,8 +13,6 @@
       "_$id": "qkuor7tf",
       "_$type": "Image",
       "name": "Image",
-      "x": -392,
-      "y": -220,
       "width": 1920,
       "height": 1080,
       "mouseEnabled": true,
