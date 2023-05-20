@@ -8,13 +8,14 @@ export default mudConfig({
     ScoreComponent: "uint32",
     RankComponent: {
       schema: { 
-        address: "uint256", 
-        score: "uint32" 
+        addr: "address[10]", 
+        score: "uint32[10]" 
       },
     },
     GameConfigComponent:{
       schema: {
-        optionArray: "uint32[]", // Store supports dynamic arrays
+        config1: "uint256",
+        config2: "uint256"
       },
     }
   },
