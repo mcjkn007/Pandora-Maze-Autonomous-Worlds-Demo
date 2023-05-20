@@ -1,0 +1,20 @@
+{
+  "_$ver": 1,
+  "_$id": "j9fo4n50",
+  "_$type": "Image",
+  "name": "alphabet",
+  "width": 48,
+  "height": 48,
+  "mouseEnabled": true,
+  "hitTestPrior": true,
+  "color": "#ffffff",
+  "_$comp": [
+    {
+      "_$type": "4f00c8eb-57a7-4481-a064-d6b7b28f78fc",
+      "scriptPath": "../src/game/gameCard.ts",
+      "alphabet": {
+        "_$ref": "j9fo4n50"
+      }
+    }
+  ]
+}

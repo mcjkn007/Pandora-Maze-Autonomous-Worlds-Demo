@@ -6,5 +6,92 @@
   "right": 0,
   "top": 0,
   "bottom": 0,
-  "name": "Scene2D"
+  "name": "Scene2D",
+  "_$child": [
+    {
+      "_$id": "tdbcfecq",
+      "_$var": true,
+      "_$type": "Image",
+      "name": "bg",
+      "width": 1920,
+      "height": 1080,
+      "centerX": 0,
+      "centerY": 0,
+      "skin": "res://30b224de-5a5e-4193-8c2c-61ee6fba6519",
+      "color": "#ffffff"
+    },
+    {
+      "_$id": "vswiw2ur",
+      "_$var": true,
+      "_$type": "Image",
+      "name": "slot_bg",
+      "x": 960,
+      "y": 1020,
+      "width": 514,
+      "height": 81,
+      "anchorX": 0.5,
+      "anchorY": 0.5,
+      "bottom": 20,
+      "centerX": 0,
+      "skin": "res://94aa6a6d-a81b-4bc2-9805-7eb93df67b20",
+      "sizeGrid": "0,108,0,106,1",
+      "color": "#ffffff"
+    },
+    {
+      "_$id": "xp0lrqmo",
+      "_$var": true,
+      "_$type": "Text",
+      "name": "score_text",
+      "x": 100,
+      "y": 18,
+      "width": 280,
+      "height": 48,
+      "text": "0",
+      "font": "res://26b90808-0a80-4bc0-8904-488eed49d5f7",
+      "fontSize": 30,
+      "color": "rgba(182, 255, 228, 1)",
+      "leading": 0
+    },
+    {
+      "_$id": "ndr7x443",
+      "_$type": "Text",
+      "name": "score_title",
+      "x": 10,
+      "y": 19.99999999999998,
+      "width": 140,
+      "height": 48,
+      "text": "Score:",
+      "font": "res://26b90808-0a80-4bc0-8904-488eed49d5f7",
+      "fontSize": 24,
+      "color": "rgba(182, 255, 228, 1)",
+      "leading": 0
+    },
+    {
+      "_$id": "y7ohlovt",
+      "_$var": true,
+      "_$type": "Image",
+      "name": "view",
+      "x": 960,
+      "y": 540,
+      "width": 768,
+      "height": 768,
+      "anchorX": 0.5,
+      "anchorY": 0.5,
+      "mouseEnabled": true,
+      "centerX": 0,
+      "centerY": 0,
+      "color": "#ffffff"
+    },
+    {
+      "_$id": "hifnp2cl",
+      "_$var": true,
+      "_$type": "Image",
+      "name": "Mask",
+      "width": 1920,
+      "height": 1080,
+      "alpha": 0,
+      "skin": "res://00000000-0000-0000-0001-000000000001",
+      "color": "#ffffff"
+    }
+  ]
 }

@@ -1,0 +1,54 @@
+{
+  "_$ver": 1,
+  "_$id": "3zux3awn",
+  "_$runtime": "res://05189d1c-c530-4a8c-8158-1e96f65b531f",
+  "_$type": "Dialog",
+  "name": "Dialog",
+  "width": 400,
+  "height": 200,
+  "mouseEnabled": true,
+  "isModal": true,
+  "_$child": [
+    {
+      "_$id": "rfabn8k3",
+      "_$type": "Image",
+      "name": "bg",
+      "width": 400,
+      "height": 200,
+      "skin": "res://00000000-0000-0000-0001-000000000000",
+      "color": "#ffffff"
+    },
+    {
+      "_$id": "s6kfcyyj",
+      "_$var": true,
+      "_$type": "Button",
+      "name": "Button",
+      "x": 146,
+      "y": 141,
+      "width": 120,
+      "height": 40,
+      "mouseEnabled": true,
+      "skin": "res://d4cfd6a8-0d0a-475b-ac93-d85eaa646936",
+      "label": "Confilm",
+      "labelSize": 20
+    },
+    {
+      "_$id": "ptjxh5yz",
+      "_$var": true,
+      "_$type": "Text",
+      "name": "Text",
+      "x": 200,
+      "y": 75,
+      "width": 400,
+      "height": 28,
+      "anchorX": 0.5,
+      "anchorY": 0.5,
+      "text": "test!",
+      "fontSize": 28,
+      "color": "rgba(0, 0, 0, 1)",
+      "align": "center",
+      "valign": "middle",
+      "leading": 0
+    }
+  ]
+}
