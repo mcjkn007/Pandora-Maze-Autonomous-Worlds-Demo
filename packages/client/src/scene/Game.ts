@@ -9,7 +9,7 @@ import { GameBase } from './Game.generated';
 @regClass()
 export class Game extends GameBase {
     
-    randMgr:RandomMgr;
+    randMgr:RandMgr;
    // 保存整个 "棋盘" 的每个格子状态（下标为格子起始点横纵坐标）
     chessBoard: ChessBoardUnitType[][] = [];
  
@@ -27,6 +27,8 @@ export class Game extends GameBase {
     cardMoveSpeed:number = 1;
     slotCardMoveSpeed:number = 0.5;
     blockLevel:number = 0;
+    playerOpCards:number[];
+    stageNum:number = 0;
     async onAwake() {
         console.log("Game start");
        await Laya.loader.load("resources/prefab/P_card.lh").then((res)=>{
@@ -36,16 +38,33 @@ export class Game extends GameBase {
           this.card_res = res;
         });
 
-        this.onInitGame(defaultGameConfig);
+       
         this.view.size(defaultGameConfig.viewWidth*defaultGameConfig.cardSize,defaultGameConfig.viewHeight*defaultGameConfig.cardSize);
         Laya.stage.on(GameManagerEvent.TouchCard,this,this.onTouchCardEvent.bind(this));
         Laya.stage.on(GameManagerEvent.RestartGame,this,this.RestartGame.bind(this));
      
-        
+        Laya.Tween.to(this.Mask,{alpha:0},1500,Laya.Ease.linearIn);
+        this.onInitGame(defaultGameConfig);
     }
-
+    onActionFinishEvent(){
+      Laya.Scene.open("resources/scene/Login.ls",true, null, null,null);
+      Laya.Scene.close("resources/scene/Game.ls")
+      Laya.Scene.destroy("resources/scene/Game.ls")
+  }
+    onChangeScene(){
+      Laya.Tween.to(this.Mask,{alpha:1},1200,Laya.Ease.linearIn,Laya.Handler.create(this,this.onActionFinishEvent.bind(this)));
+  }
     RestartGame(type:number){
       console.log(type);
+      if(type == 0){
+        this.onChangeScene();
+        return;
+      }else if (type == 1){
+        this.stageNum++;
+        if(this.stageNum == defaultGameConfig.stageNum){
+          this.onChangeScene();
+        }
+      }
       this.onInitGame(defaultGameConfig);
     }
     onTouchCardEvent(uid:number){
@@ -65,7 +84,7 @@ export class Game extends GameBase {
         console.log('触摸：',uid);
         
         if(uid > this.cardBlocks.length){
-            this.onPopDialog('没有此卡');
+           // this.onPopDialog('没有此卡');
            
             return;
         }
@@ -76,11 +95,11 @@ export class Game extends GameBase {
               console.log(a);
             }
           
-            this.onPopDialog('不是最上面的卡');
+            //this.onPopDialog('不是最上面的卡');
             return;
         }
         if(card.status != 0){
-            this.onPopDialog('已经被摸过了');
+           // this.onPopDialog('已经被摸过了');
             return;
         }
         for (let x of card.higherThanBlocks){
@@ -121,6 +140,7 @@ export class Game extends GameBase {
         script.touchFlag = false;
         
         this.slotArea[this.curSlotNum-1] = uid;
+        this.playerOpCards.push(uid);
         Laya.Tween.to(this.cardNodeMap.get(uid),movePoint,sTime,Laya.Ease.linearIn,Laya.Handler.create(this,this.onMoveCardFinishEvent.bind(this),[uid]));
        
     }
@@ -141,7 +161,7 @@ export class Game extends GameBase {
     onTouchSlotCardEvent(uid:number){
    
         if(!this.cardNodeMap.has(uid)){
-            this.onPopDialog('卡片错误');
+          //  this.onPopDialog('卡片错误');
             return;
         }
         let newSlot = [];
@@ -193,7 +213,7 @@ export class Game extends GameBase {
             }
           } 
           if(n < this.gameConfig.composeNumMin){
-              this.onPopDialog('没有到最低消除个数! ');
+             // this.onPopDialog('没有到最低消除个数! ');
               return;
           }
           this.curSlotNum  -= n;
@@ -247,7 +267,7 @@ export class Game extends GameBase {
             newSlot.push(-1);
           }
         }
-        
+
         this.score += Math.pow(2,n-this.gameConfig.composeNumMin);
         this.score_text.text = this.score.toString();
 
@@ -273,6 +293,7 @@ export class Game extends GameBase {
             script.touchFlag = false;
             Laya.Tween.to(this.cardNodeMap.get(index),movePoint,sTime,Laya.Ease.linearIn,Laya.Handler.create(this,this.onMoveSlotCardFinishEvent.bind(this),[index]));
         }
+        this.playerOpCards.push(uid);
         if(this.cardNodeMap.size == 0){
           this.onPopResult(1,this.score.toString());
           return; 
@@ -291,9 +312,10 @@ export class Game extends GameBase {
         this.cardBlocks = [];
         this.curSlotNum = 0;
         this.slotArea =  new Array(gameConfig.slotNum).fill(-1);
-        this.score = 0;
+         
         this.score_text.text = this.score.toString();
         this.blockLevel = 0;
+        this.playerOpCards = [];
          
         this.chessBoard = new Array(gameConfig.viewWidth*gameConfig.cardSize);
         for (let i = 0; i < gameConfig.viewWidth*gameConfig.cardSize; i++) {
@@ -308,7 +330,7 @@ export class Game extends GameBase {
         const blockNumUnit = gameConfig.composeNumMax * 2 * gameConfig.typeNum;
 
         this.randMgr = new RandomMgr();
-        this.randMgr.init(123);
+        this.randMgr.init(this.score);
 
  
         const totalNum = gameConfig.totalRangeNum;
@@ -511,8 +533,7 @@ export class Game extends GameBase {
         //block.level = maxLevel + 1;
       };
     onPopDialog(message:string){
-      console.log(message);
-       // Laya.Scene.open("resources/prefab/P_dialog.lh", false, {"text":message}) 
+        Laya.Scene.open("resources/prefab/P_dialog.lh", false, {"text":message}) 
     }
     onPopResult(type:number,message:string){
       if(type == 0){
@@ -521,6 +542,5 @@ export class Game extends GameBase {
       else{
         Laya.Scene.open("resources/prefab/P_victory.lh", false, {"text":message,"type":type});
       }
-      
   }
 }
