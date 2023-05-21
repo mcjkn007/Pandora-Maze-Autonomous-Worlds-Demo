@@ -1,7 +1,7 @@
 const { regClass, property } = Laya;
 
  
-import {GameConfigType,defaultGameConfig,BlockType,ChessBoardUnitType, GameManagerEvent} from '../common/Config'
+import {GameConfigType,defaultGameConfig,BlockType,ChessBoardUnitType, GameManagerEvent, RemoveRuleType} from '../common/Config'
 import { RandomMgr } from '../common/RandomMgr';
 import { gameCard } from '../game/gameCard';
 import { GameBase } from './Game.generated';
@@ -17,7 +17,7 @@ export class Game extends GameBase {
     card_res:Laya.PrefabImpl = null;
    // cardMap:Map<number,BlockType> = new Map();
     cardNodeMap:Map<number,Laya.Image> = new Map();
-
+ 
     cardBlocks: BlockType[] = [];
 
     curSlotNum:number = 0;
@@ -26,6 +26,7 @@ export class Game extends GameBase {
     gameConfig:GameConfigType;
     cardMoveSpeed:number = 1;
     slotCardMoveSpeed:number = 0.5;
+    blockLevel:number = 0;
     async onAwake() {
         console.log("Game start");
        await Laya.loader.load("resources/prefab/P_card.lh").then((res)=>{
@@ -99,7 +100,7 @@ export class Game extends GameBase {
     }
     onMoveTouchCard(uid:number){
         this.curSlotNum++;
-        if(this.curSlotNum > this.gameConfig.composeNumMax)
+        if(this.curSlotNum > this.gameConfig.slotNum)
         {
             this.onPopResult(0,this.score.toString());
             return; 
@@ -110,7 +111,8 @@ export class Game extends GameBase {
         let movePoint= new Laya.Point(0,0);
         this.slot_bg.localToGlobal(movePoint,false);
         this.view.globalToLocal(movePoint,false);
-        movePoint.x += (this.curSlotNum-1)*this.gameConfig.cardSize+15;
+        movePoint.x += (this.curSlotNum-1)*(this.gameConfig.cardSize+8)+22;
+     
         movePoint.y += 18;
         const sTime = this.calcDistance(cPoint,movePoint)/this.cardMoveSpeed;
 
@@ -142,68 +144,113 @@ export class Game extends GameBase {
             this.onPopDialog('卡片错误');
             return;
         }
- 
-        const type = this.cardBlocks[uid].type;
-        let removeArray = [];
+        let newSlot = [];
         let n = 0;
-        let p_index = 0;
-        for (let i = 0; i < this.slotArea.length; i++) {
+        const type = this.cardBlocks[uid].type;
+       
+         
+        if(this.gameConfig.removeRule == RemoveRuleType.CONTINUE){
+          let removeArray = [];
+           
+          let p_index = 0;
+
+          for (let i = 0; i < this.slotArea.length; i++) {
             if(this.slotArea[i] == uid){
                 p_index = i;
                 break;
             }
         }
-        for (let i = p_index; i < this.slotArea.length; i++) {
+          for (let i = p_index; i < this.slotArea.length; i++) {
             if(this.slotArea[i] == -1){
                 break;
             }
             if(this.cardBlocks[this.slotArea[i]].type == type){
                  removeArray.push(i);
                  n++;
+                 if(n >= this.gameConfig.composeNumMax){
+                    break;
+                 }
             }
             else{
                 break;
             }
-        }
-        for (let i = p_index-1; i >= 0; i--) {
-            if(this.slotArea[i] == -1){
-                break;
+          }
+          if(n < this.gameConfig.composeNumMax){
+            for (let i = p_index-1; i >= 0; i--) {
+              if(this.slotArea[i] == -1){
+                  break;
+              }
+              if(this.cardBlocks[this.slotArea[i]].type == type){
+                  removeArray.push(i);
+                  n++;
+                  if(n >= this.gameConfig.composeNumMax){
+                    break;
+                  }
+              }
+              else{
+                  break;
+              }
             }
-            if(this.cardBlocks[this.slotArea[i]].type == type){
-                 removeArray.push(i);
-                 n++;
-            }
-            else{
-                break;
-            }
-        }
-       
-        if(n < this.gameConfig.composeNumMin){
-            this.onPopDialog('没有到最低消除个数! ');
-            return;
-        }
-        this.curSlotNum  -= n;
-        this.score += Math.pow(2,n-this.gameConfig.composeNumMin);
-        this.score_text.text = this.score.toString();
-
-        for (let index = 0; index < removeArray.length; index++) {
-            const id = this.slotArea[removeArray[index]];
-            this.cardNodeMap.get(id).removeSelf();
-            this.cardNodeMap.delete(id);
-            this.cardBlocks[id].status = 2;
-            this.slotArea[removeArray[index]] = -1;
-        }
-        let newSlot = [];
-        for (let index = 0; index < this.slotArea.length; index++) {
+          } 
+          if(n < this.gameConfig.composeNumMin){
+              this.onPopDialog('没有到最低消除个数! ');
+              return;
+          }
+          this.curSlotNum  -= n;
+        
+          for (let index = 0; index < removeArray.length; index++) {
+              const id = this.slotArea[removeArray[index]];
+              this.cardNodeMap.get(id).removeSelf();
+              this.cardNodeMap.delete(id);
+              this.cardBlocks[id].status = 2;
+              this.slotArea[removeArray[index]] = -1;
+          }
+        
+          for (let index = 0; index < this.slotArea.length; index++) {
             const element = this.slotArea[index];
             if(element != -1){
                 newSlot.push(element);
             }
-        }
-        const dC = this.slotArea.length-this.curSlotNum;
-        for (let index = 0; index < dC; index++) {
+          }
+          const dC = this.slotArea.length-this.curSlotNum;
+          for (let index = 0; index < dC; index++) {
             newSlot.push(-1);
+          }
+        }else if(this.gameConfig.removeRule == RemoveRuleType.DISCONTINUE)
+        {
+          for (let i = 0; i < this.slotArea.length; i++) {
+            const id = this.slotArea[i];
+            if(id == -1){
+              break;
+            }
+            console.log(id,type);
+            if(this.cardBlocks[id].type == type){
+              this.cardNodeMap.get(id).removeSelf();
+              this.cardNodeMap.delete(id);
+              this.cardBlocks[id].status = 2;
+              this.curSlotNum--;
+              n++;
+              if(n >= this.gameConfig.composeNumMax){
+                break;
+              }
+              this.slotArea[i] = -1;
+            }
+          }
+          for (let index = 0; index < this.slotArea.length; index++) {
+            const element = this.slotArea[index];
+            if(element != -1){
+                newSlot.push(element);
+            }
+          }
+          const dC = this.slotArea.length-this.curSlotNum;
+          for (let index = 0; index < dC; index++) {
+            newSlot.push(-1);
+          }
         }
+        
+        this.score += Math.pow(2,n-this.gameConfig.composeNumMin);
+        this.score_text.text = this.score.toString();
+
         this.slotArea = newSlot;
 
         console.log('new slot ',this.slotArea);
@@ -217,7 +264,8 @@ export class Game extends GameBase {
             let movePoint= new Laya.Point(0,0);
             this.slot_bg.localToGlobal(movePoint,false);
             this.view.globalToLocal(movePoint,false);
-            movePoint.x += i*this.gameConfig.cardSize+15;
+            movePoint.x += i*(this.gameConfig.cardSize+8)+22;
+
             movePoint.y += 18;
             const sTime = this.calcDistance(cPoint,movePoint)/this.slotCardMoveSpeed;
             let script = this.cardNodeMap.get(index).getComponent(Laya.Script) as gameCard;
@@ -245,6 +293,7 @@ export class Game extends GameBase {
         this.slotArea =  new Array(gameConfig.slotNum).fill(-1);
         this.score = 0;
         this.score_text.text = this.score.toString();
+        this.blockLevel = 0;
          
         this.chessBoard = new Array(gameConfig.viewWidth*gameConfig.cardSize);
         for (let i = 0; i < gameConfig.viewWidth*gameConfig.cardSize; i++) {
@@ -345,7 +394,7 @@ export class Game extends GameBase {
      
           this.cardBlocks.push(...levelBlocks);
           this.initCard(levelBlocks);
-         // this.gameStart();
+          this.gameStart();
         
     }
    
@@ -365,10 +414,10 @@ export class Game extends GameBase {
         let res:Laya.Texture = Laya.loader.getRes(`atlas/letter/letter_${info.type+1}.png`);
         script.SetAlphabet(res);
 
-        //ct.x = this.view.width/4;
-        //ct.y = this.view.height/4;
-         ct.x = info.x;
-        ct.y = info.y;
+        ct.x = this.view.width/4;
+        ct.y = this.view.height/4;
+        //ct.x = info.x;
+        //ct.y = info.y;
         ct.zOrder = info.level;
          
         if(info.lowerThanBlocks.size != 0){
@@ -393,9 +442,7 @@ export class Game extends GameBase {
           Laya.Tween.to(node,movePoint,sTime,Laya.Ease.linearIn,Laya.Handler.create(this,this.onMoveSlotCardFinishEvent.bind(this),[index]));
          
         }
-        for(let node of this.cardNodeMap){
-          node
-        }
+        
     }
    //getCardInfo(gameConfig:GameConfigType,type:number):[cardAlphabet:string,cardColor:string]{
        // return [gameConfig.alphabetArray[type%gameConfig.alphabetNum],
@@ -430,18 +477,19 @@ export class Game extends GameBase {
           currentPosSet.add(key);
           block.x = newPosX;
           block.y = newPosY;
+          block.level = this.blockLevel++;
           // 填充层级关系
           this.genLevelRelation(gameConfig,block);
         }
       };
       genLevelRelation = (gameConfig:GameConfigType,block: BlockType) => {
         // 确定该块附近的格子坐标范围
-        const minX = Math.max(block.x-gameConfig.cardSize+2, 0);
-        const minY = Math.max(block.y-gameConfig.cardSize+2, 0);
-        const maxX = Math.min(block.x + gameConfig.cardSize-2, (gameConfig.viewWidth-1)*gameConfig.cardSize);
-        const maxY = Math.min(block.y + gameConfig.cardSize-2, (gameConfig.viewHeight-1)*gameConfig.cardSize);
+        const minX = Math.max(block.x-gameConfig.cardSize, 0);
+        const minY = Math.max(block.y-gameConfig.cardSize, 0);
+        const maxX = Math.min(block.x + gameConfig.cardSize+1, (gameConfig.viewWidth-1)*gameConfig.cardSize);
+        const maxY = Math.min(block.y + gameConfig.cardSize+1, (gameConfig.viewHeight-1)*gameConfig.cardSize);
         // 遍历该块附近的格子
-        let maxLevel = 0;
+        //let maxLevel = 0;
         for (let i = minX; i < maxX; i++) {
           for (let j = minY; j < maxY; j++) {
             const relationBlocks = this.chessBoard[i][j].blocks;
@@ -450,19 +498,21 @@ export class Game extends GameBase {
               const maxLevelRelationBlock = relationBlocks[relationBlocks.length - 1];
               // 排除自己
               if (maxLevelRelationBlock.id === block.id) {
+                console.log('-----');
                 continue;
               }
-              maxLevel = Math.max(maxLevel, maxLevelRelationBlock.level);
+              //maxLevel = Math.max(maxLevel, maxLevelRelationBlock.level);
               block.higherThanBlocks.add(maxLevelRelationBlock.id);
               maxLevelRelationBlock.lowerThanBlocks.add(block.id);
             }
           }
         }
         // 比最高层的块再高一层（初始为 1）
-        block.level = maxLevel + 1;
+        //block.level = maxLevel + 1;
       };
     onPopDialog(message:string){
-        Laya.Scene.open("resources/prefab/P_dialog.lh", false, {"text":message}) 
+      console.log(message);
+       // Laya.Scene.open("resources/prefab/P_dialog.lh", false, {"text":message}) 
     }
     onPopResult(type:number,message:string){
       if(type == 0){
