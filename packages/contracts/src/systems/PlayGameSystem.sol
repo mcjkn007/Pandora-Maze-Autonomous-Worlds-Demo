@@ -2,13 +2,16 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
+import { LibConfig } from "../lib/LibConfig.sol";
+import { LibBlock } from "../lib/LibBlock.sol";
+import { GameConfigType } from "../codegen/Types.sol";
 import { PlayerComponent as Player, SeedComponent as Seed } from "../codegen/Tables.sol";
 import { StageComponent as Stage, ScoreComponent as Score, RankComponent as Rank, RankComponentData as RankData } from "../codegen/Tables.sol";
 import { GameConfigComponent,  GameConfigComponentData as GameConfig } from "../codegen/Tables.sol";
 
 contract PlayGameSystem is System {
   function verifyGamePlay(uint32[] calldata _opts) public {
-    bytes playerEntity = bytes32(uint256(uint160(_msgSender())));
+    bytes32 playerEntity = bytes32(uint256(uint160(_msgSender())));
     uint curTotalScore = Score.get(playerEntity);
     uint curStage = Stage.get(playerEntity);
     GameConfig memory gameConfig = GameConfigComponent.get();
@@ -20,16 +23,16 @@ contract PlayGameSystem is System {
       curStage = 0;
     }
     // TODO verification
-    (bool pass, uint score) = verify(_opts, curTotalScore + seed);
+    (bool pass, uint score) = LibBlock.Verify(_opts, gameConfig, curTotalScore + seed);
     curTotalScore += score;
     ++curStage;
     if (!pass || curStage == stageNum) {
       curStage = 0;
-      updateRank(_gameConfig, seed, curTotalScore);
+      updateRank(gameConfig, seed, uint32(curTotalScore));
       curTotalScore = 0;
     }
-    Score.set(playerEntity, curTotalScore);
-    Stage.set(playerEntity, curStage);
+    Score.set(playerEntity, uint32(curTotalScore));
+    Stage.set(playerEntity, uint32(curStage));
   }
 
   function verify(uint32[] calldata _opts, uint _seed) public pure returns (bool pass, uint score) {}
@@ -47,21 +50,21 @@ contract PlayGameSystem is System {
     }
   }
 
-  function updateRank(GameConfig memory _gameConfig, uint _seed, uint _score) internal {
+  function updateRank(GameConfig memory _gameConfig, uint _seed, uint32 _score) internal {
     if (_score == 0) {
       return;
     }
     address player = _msgSender();
-    bytes32 rankHash = keccak256(abi.encodePacked(_gameConfig, _seed));
+    bytes32 rankHash = keccak256(abi.encodePacked(_gameConfig.config1, _gameConfig.config2, _seed));
     RankData memory rank = Rank.get(rankHash);
     address[10] memory addrs = rank.addr;
-    uint[10] memory scores = rank.score;
+    uint32[10] memory scores = rank.score;
     if (_score <= scores[9]) {
       return;
     }
     uint insertAt;
     address[10] memory newAddrs;
-    uint[10] memory newScores;
+    uint32[10] memory newScores;
     for (uint i; i < 10; ++i) {
       if (scores[i] < _score) {
         insertAt = i;
@@ -84,7 +87,7 @@ contract PlayGameSystem is System {
         break;
       } else {
         newAddrs[j] = addrs[i];
-        newScores[j] = addrs[i];
+        newScores[j] = scores[i];
         ++j;
       }
     }

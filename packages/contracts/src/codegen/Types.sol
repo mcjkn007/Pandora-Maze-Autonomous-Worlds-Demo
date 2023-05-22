@@ -13,7 +13,6 @@ enum GameConfigType {
   CardSize,
   ViewWidth,
   ViewHeight,
-  AlphabetNum,
-  ColorNum,
+  TotalRangeNum,
   StageNum
 }

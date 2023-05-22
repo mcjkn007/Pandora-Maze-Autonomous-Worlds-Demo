@@ -9,11 +9,11 @@ library LibConfig {
         uint32 result = 0;
         uint32 _type = uint32(configType);
         if(_type < uint32(GameConfigType.ViewWidth)){
-            uint256 t = config.arg0 >>(32*(_type));
+            uint256 t = config.config1 >>(32*(_type));
             result = uint32(t % (2 ** 32));
         }
         else{
-            uint256 t = config.arg1 >>(32*(_type-uint32(GameConfigType.ViewWidth)));
+            uint256 t = config.config2 >>(32*(_type-uint32(GameConfigType.ViewWidth)));
             result = uint32(t % (2 ** 32));
         }
         return result;

@@ -18,7 +18,7 @@ export default mudConfig({
   },
   enums: {
     GameConfigType: ["SlotNum", "ComposeNumMin", "ComposeNumMax", "TypeNum", "LevelBlockInitNum",
-     "BorderStep", "LevelNum", "CardSize", "ViewWidth", "ViewHeight", "AlphabetNum", "ColorNum", "StageNum"],
+     "BorderStep", "LevelNum", "CardSize", "ViewWidth", "ViewHeight", "TotalRangeNum", "StageNum"],
   },
   tables: {
     Counter: {
