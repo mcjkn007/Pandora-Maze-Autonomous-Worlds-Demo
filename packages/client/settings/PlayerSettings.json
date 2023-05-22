@@ -1,7 +1,8 @@
 {
   "resolution": {
     "designWidth": 1920,
-    "designHeight": 1080
+    "designHeight": 1080,
+    "scaleMode": "fixedwidth"
   },
   "3D": {
     "lightClusterCount": {

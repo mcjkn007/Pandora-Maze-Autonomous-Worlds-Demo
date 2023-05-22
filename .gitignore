@@ -3,5 +3,5 @@ packages/client/temp
 packages/client/library
 packages/client/local
 packages/client/bin
-
+packages/client/release
 *.meta

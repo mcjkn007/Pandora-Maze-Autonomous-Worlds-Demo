@@ -5,8 +5,8 @@
  * resources/scene/Login.ls
  */
 export class LoginBase extends Laya.Scene {
-    public Start_Button: Laya.Button;
-    public Rank_Button: Laya.Button;
+    public Start_Button: Laya.Image;
+    public Rank_Button: Laya.Image;
     public Mask: Laya.Image;
 }
 

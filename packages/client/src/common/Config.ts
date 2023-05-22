@@ -10,7 +10,11 @@ export const enum BlockStatusType {
     Clicked,
     Removed
 };
-
+export const enum GameResultType {
+      DEFEAT,
+      VICTORY,  
+    }
+    
 export const enum GameManagerEvent {
     TouchCard = 'TouchCard',
     RestartGame = 'RestartGame'

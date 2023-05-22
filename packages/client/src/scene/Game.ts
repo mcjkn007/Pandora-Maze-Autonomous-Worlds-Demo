@@ -1,7 +1,7 @@
 const { regClass, property } = Laya;
 
  
-import {GameConfigType,defaultGameConfig,BlockType,ChessBoardUnitType, GameManagerEvent, RemoveRuleType} from '../common/Config'
+import {GameConfigType,defaultGameConfig,BlockType,ChessBoardUnitType, GameManagerEvent, RemoveRuleType, GameResultType, BlockStatusType} from '../common/Config'
 import { RandomMgr } from '../common/RandomMgr';
 import { gameCard } from '../game/gameCard';
 import { GameBase } from './Game.generated';
@@ -9,7 +9,7 @@ import { GameBase } from './Game.generated';
 @regClass()
 export class Game extends GameBase {
     
-    randMgr:RandMgr;
+    randMgr:RandomMgr;
    // 保存整个 "棋盘" 的每个格子状态（下标为格子起始点横纵坐标）
     chessBoard: ChessBoardUnitType[][] = [];
  
@@ -19,7 +19,7 @@ export class Game extends GameBase {
     cardNodeMap:Map<number,Laya.Image> = new Map();
  
     cardBlocks: BlockType[] = [];
-
+ 
     curSlotNum:number = 0;
     slotArea:number[];
     score:number=0;
@@ -106,7 +106,7 @@ export class Game extends GameBase {
             if(this.cardBlocks[x].lowerThanBlocks.has(card.id)){
                 this.cardBlocks[x].lowerThanBlocks.delete(card.id);
                 
-                console.log('删除', card.id,"下面有",x);
+               // console.log('删除', card.id,"下面有",x);
                 if(this.cardBlocks[x].lowerThanBlocks.size == 0){
                     this.cardNodeMap.get(x).gray = false;
                 }
@@ -121,9 +121,11 @@ export class Game extends GameBase {
         this.curSlotNum++;
         if(this.curSlotNum > this.gameConfig.slotNum)
         {
-            this.onPopResult(0,this.score.toString());
+            this.onPopResult(GameResultType.DEFEAT,this.score.toString());
             return; 
         }
+        
+        
         this.cardBlocks[uid].status = 1;
         this.cardNodeMap.get(uid).zOrder = 999;
         const cPoint = new Laya.Point(this.cardNodeMap.get(uid).x,this.cardNodeMap.get(uid).y);
@@ -164,13 +166,38 @@ export class Game extends GameBase {
           //  this.onPopDialog('卡片错误');
             return;
         }
+        let flag = true;
+        for (let index = 0; index < this.cardBlocks.length; index++) {
+          const element = this.cardBlocks[index];
+          if(element.status == BlockStatusType.Normal){
+            flag = false;
+            break;
+          }
+        }
+        
+        if(flag && this.cardNodeMap.size < this.gameConfig.composeNumMax){
+          let tempMap = new Set<number>;
+          flag = true;
+          for (let element of this.cardNodeMap) {
+            const type = this.cardBlocks[element[0]].type;
+            if(tempMap.has(type)){
+              flag = false;
+              break;
+            }else{
+              tempMap.add(type);
+            }
+          }
+          if(flag){
+            this.onPopResult(GameResultType.DEFEAT,this.score.toString());
+          }
+        }
+        
         let newSlot = [];
         let n = 0;
         const type = this.cardBlocks[uid].type;
-       
-         
+        let removeArray = [];
         if(this.gameConfig.removeRule == RemoveRuleType.CONTINUE){
-          let removeArray = [];
+          
            
           let p_index = 0;
 
@@ -245,17 +272,27 @@ export class Game extends GameBase {
             }
             console.log(id,type);
             if(this.cardBlocks[id].type == type){
-              this.cardNodeMap.get(id).removeSelf();
-              this.cardNodeMap.delete(id);
-              this.cardBlocks[id].status = 2;
-              this.curSlotNum--;
+              removeArray.push(i);
               n++;
               if(n >= this.gameConfig.composeNumMax){
                 break;
               }
-              this.slotArea[i] = -1;
             }
           }
+          if(n < this.gameConfig.composeNumMin){
+            // this.onPopDialog('没有到最低消除个数! ');
+             return;
+         }
+         this.curSlotNum  -= n;
+        
+         for (let index = 0; index < removeArray.length; index++) {
+          const id = this.slotArea[removeArray[index]];
+          this.cardNodeMap.get(id).removeSelf();
+          this.cardNodeMap.delete(id);
+          this.cardBlocks[id].status = 2;
+          this.slotArea[removeArray[index]] = -1;
+     
+      }
           for (let index = 0; index < this.slotArea.length; index++) {
             const element = this.slotArea[index];
             if(element != -1){
@@ -272,7 +309,7 @@ export class Game extends GameBase {
         this.score_text.text = this.score.toString();
 
         this.slotArea = newSlot;
-
+        
         console.log('new slot ',this.slotArea);
         for (let i = 0; i < this.slotArea.length; i++) {
             const index = this.slotArea[i];
@@ -295,9 +332,11 @@ export class Game extends GameBase {
         }
         this.playerOpCards.push(uid);
         if(this.cardNodeMap.size == 0){
-          this.onPopResult(1,this.score.toString());
+          this.onPopResult(GameResultType.VICTORY,this.score.toString());
           return; 
         } 
+     
+       
     }
     onInitGame(gameConfig:GameConfigType){
         this.gameConfig = gameConfig;
@@ -307,8 +346,8 @@ export class Game extends GameBase {
         {
             node[1].removeSelf();
         }
-        
-        this.cardNodeMap = new Map();
+ 
+        this.cardNodeMap.clear();
         this.cardBlocks = [];
         this.curSlotNum = 0;
         this.slotArea =  new Array(gameConfig.slotNum).fill(-1);
@@ -350,6 +389,7 @@ export class Game extends GameBase {
         let TypeArray = Array<number>();
         for (let i = 0; i < blockNumUnit; i++) {
             TypeArray.push(RandomTypeArray[i % gameConfig.typeNum]);
+             
           }
 
         for (let i = 0; i < TypeArray.length; i++) {
@@ -536,7 +576,7 @@ export class Game extends GameBase {
         Laya.Scene.open("resources/prefab/P_dialog.lh", false, {"text":message}) 
     }
     onPopResult(type:number,message:string){
-      if(type == 0){
+      if(type == GameResultType.DEFEAT){
         Laya.Scene.open("resources/prefab/P_defeat.lh", false, {"text":message,"type":type});
       }
       else{
