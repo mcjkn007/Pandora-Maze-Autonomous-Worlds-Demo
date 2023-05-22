@@ -1,7 +1,15 @@
 import { mudConfig } from "@latticexyz/world/register";
 
 export default mudConfig({
+  enums: {
+    GameConfigType: ["SlotNum", "ComposeNumMin", "ComposeNumMax", "TypeNum", "LevelBlockInitNum",
+     "BorderStep", "LevelNum", "CardSize", "ViewWidth", "ViewHeight", "AlphabetNum", "ColorNum"],
+  },
   tables: {
+    Counter: {
+      keySchema: {},
+      schema: "uint32",
+    },
     PlayerComponent:"bool",
     SeedComponent: "uint256",
     StageComponent: "uint32",
