@@ -14,5 +14,6 @@ enum GameConfigType {
   ViewWidth,
   ViewHeight,
   AlphabetNum,
-  ColorNum
+  ColorNum,
+  StageNum
 }

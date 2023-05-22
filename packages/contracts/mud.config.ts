@@ -1,9 +1,24 @@
 import { mudConfig } from "@latticexyz/world/register";
 
 export default mudConfig({
+  namespace: "game",
+  systems: {
+    IncrementSystem: {
+      name: "increment",
+      openAccess: true,
+    },
+    JoinGameSystem: {
+      name: "joinGame",
+      openAccess: true,
+    },
+    PlayGameSystem: {
+      name: "playGame",
+      openAccess: true,
+    }
+  },
   enums: {
     GameConfigType: ["SlotNum", "ComposeNumMin", "ComposeNumMax", "TypeNum", "LevelBlockInitNum",
-     "BorderStep", "LevelNum", "CardSize", "ViewWidth", "ViewHeight", "AlphabetNum", "ColorNum"],
+     "BorderStep", "LevelNum", "CardSize", "ViewWidth", "ViewHeight", "AlphabetNum", "ColorNum", "StageNum"],
   },
   tables: {
     Counter: {
@@ -11,7 +26,14 @@ export default mudConfig({
       schema: "uint32",
     },
     PlayerComponent:"bool",
-    SeedComponent: "uint256",
+    SeedComponent: {
+      keySchema: {},
+      schema: {
+        value: "uint256",
+        updatePeriod: "uint256",
+        startFrom: "uint256"
+      }
+    },
     StageComponent: "uint32",
     ScoreComponent: "uint32",
     RankComponent: {
@@ -21,6 +43,7 @@ export default mudConfig({
       },
     },
     GameConfigComponent:{
+      keySchema: {},
       schema: {
         config1: "uint256",
         config2: "uint256"

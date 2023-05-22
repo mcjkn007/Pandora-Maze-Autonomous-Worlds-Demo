@@ -17,7 +17,7 @@ import { EncodeArray } from "@latticexyz/store/src/tightcoder/EncodeArray.sol";
 import { Schema, SchemaLib } from "@latticexyz/store/src/Schema.sol";
 import { PackedCounter, PackedCounterLib } from "@latticexyz/store/src/PackedCounter.sol";
 
-bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("GameConfigCompon")));
+bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16("game"), bytes16("GameConfigCompon")));
 bytes32 constant GameConfigComponentTableId = _tableId;
 
 struct GameConfigComponentData {
@@ -36,8 +36,7 @@ library GameConfigComponent {
   }
 
   function getKeySchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](1);
-    _schema[0] = SchemaType.BYTES32;
+    SchemaType[] memory _schema = new SchemaType[](0);
 
     return SchemaLib.encode(_schema);
   }
@@ -73,119 +72,107 @@ library GameConfigComponent {
   }
 
   /** Get config1 */
-  function getConfig1(bytes32 key) internal view returns (uint256 config1) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32((key));
+  function getConfig1() internal view returns (uint256 config1) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 0);
     return (uint256(Bytes.slice32(_blob, 0)));
   }
 
   /** Get config1 (using the specified store) */
-  function getConfig1(IStore _store, bytes32 key) internal view returns (uint256 config1) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32((key));
+  function getConfig1(IStore _store) internal view returns (uint256 config1) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 0);
     return (uint256(Bytes.slice32(_blob, 0)));
   }
 
   /** Set config1 */
-  function setConfig1(bytes32 key, uint256 config1) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32((key));
+  function setConfig1(uint256 config1) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((config1)));
   }
 
   /** Set config1 (using the specified store) */
-  function setConfig1(IStore _store, bytes32 key, uint256 config1) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32((key));
+  function setConfig1(IStore _store, uint256 config1) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((config1)));
   }
 
   /** Get config2 */
-  function getConfig2(bytes32 key) internal view returns (uint256 config2) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32((key));
+  function getConfig2() internal view returns (uint256 config2) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1);
     return (uint256(Bytes.slice32(_blob, 0)));
   }
 
   /** Get config2 (using the specified store) */
-  function getConfig2(IStore _store, bytes32 key) internal view returns (uint256 config2) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32((key));
+  function getConfig2(IStore _store) internal view returns (uint256 config2) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 1);
     return (uint256(Bytes.slice32(_blob, 0)));
   }
 
   /** Set config2 */
-  function setConfig2(bytes32 key, uint256 config2) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32((key));
+  function setConfig2(uint256 config2) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     StoreSwitch.setField(_tableId, _keyTuple, 1, abi.encodePacked((config2)));
   }
 
   /** Set config2 (using the specified store) */
-  function setConfig2(IStore _store, bytes32 key, uint256 config2) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32((key));
+  function setConfig2(IStore _store, uint256 config2) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((config2)));
   }
 
   /** Get the full data */
-  function get(bytes32 key) internal view returns (GameConfigComponentData memory _table) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32((key));
+  function get() internal view returns (GameConfigComponentData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes memory _blob = StoreSwitch.getRecord(_tableId, _keyTuple, getSchema());
     return decode(_blob);
   }
 
   /** Get the full data (using the specified store) */
-  function get(IStore _store, bytes32 key) internal view returns (GameConfigComponentData memory _table) {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32((key));
+  function get(IStore _store) internal view returns (GameConfigComponentData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes memory _blob = _store.getRecord(_tableId, _keyTuple, getSchema());
     return decode(_blob);
   }
 
   /** Set the full data using individual values */
-  function set(bytes32 key, uint256 config1, uint256 config2) internal {
+  function set(uint256 config1, uint256 config2) internal {
     bytes memory _data = encode(config1, config2);
 
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32((key));
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _data);
   }
 
   /** Set the full data using individual values (using the specified store) */
-  function set(IStore _store, bytes32 key, uint256 config1, uint256 config2) internal {
+  function set(IStore _store, uint256 config1, uint256 config2) internal {
     bytes memory _data = encode(config1, config2);
 
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32((key));
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     _store.setRecord(_tableId, _keyTuple, _data);
   }
 
   /** Set the full data using the data struct */
-  function set(bytes32 key, GameConfigComponentData memory _table) internal {
-    set(key, _table.config1, _table.config2);
+  function set(GameConfigComponentData memory _table) internal {
+    set(_table.config1, _table.config2);
   }
 
   /** Set the full data using the data struct (using the specified store) */
-  function set(IStore _store, bytes32 key, GameConfigComponentData memory _table) internal {
-    set(_store, key, _table.config1, _table.config2);
+  function set(IStore _store, GameConfigComponentData memory _table) internal {
+    set(_store, _table.config1, _table.config2);
   }
 
   /** Decode the tightly packed blob using this table's schema */
@@ -201,23 +188,20 @@ library GameConfigComponent {
   }
 
   /** Encode keys as a bytes32 array using this table's schema */
-  function encodeKeyTuple(bytes32 key) internal pure returns (bytes32[] memory _keyTuple) {
-    _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32((key));
+  function encodeKeyTuple() internal pure returns (bytes32[] memory _keyTuple) {
+    _keyTuple = new bytes32[](0);
   }
 
   /* Delete all data for given keys */
-  function deleteRecord(bytes32 key) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32((key));
+  function deleteRecord() internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
 
   /* Delete all data for given keys (using the specified store) */
-  function deleteRecord(IStore _store, bytes32 key) internal {
-    bytes32[] memory _keyTuple = new bytes32[](1);
-    _keyTuple[0] = bytes32((key));
+  function deleteRecord(IStore _store) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
 
     _store.deleteRecord(_tableId, _keyTuple);
   }

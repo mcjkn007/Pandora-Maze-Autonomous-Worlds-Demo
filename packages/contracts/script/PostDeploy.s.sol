@@ -5,6 +5,7 @@ import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { GameConfigInitializer } from "../src/lib/GameConfigInitializer.sol";
+import { SeedComponent as Seed } from "../src/codegen/Tables.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
@@ -20,7 +21,10 @@ contract PostDeploy is Script {
     uint32 newValue = IWorld(worldAddress).increment();
     console.log("Increment via IWorld:", newValue);
 
-    GameConfigInitializer.init(IWorld);
+    GameConfigInitializer.init(IWorld(worldAddress));
+
+    Seed.setUpdatePeriod(IWorld(worldAddress), 86400);
+    Seed.setStartFrom(IWorld(worldAddress), block.timestamp - (block.timestamp % 86400));
 
     vm.stopBroadcast();
   }

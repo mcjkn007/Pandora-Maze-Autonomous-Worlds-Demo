@@ -20,8 +20,8 @@ library GameConfigInitializer {
     arg1 += 25<<64;//AlphabetNum
     arg1 += 7<<96;//ColorNum
 
-    uint256 configHash = uint256(keccak256(abi.encodePacked(arg0, arg1)));
+    // uint256 configHash = uint256(keccak256(abi.encodePacked(arg0, arg1)));
 
-    GameConfigComponent.set(world, configHash, arg0, arg1);
+    GameConfigComponent.set(world, arg0, arg1);
   }
 }
