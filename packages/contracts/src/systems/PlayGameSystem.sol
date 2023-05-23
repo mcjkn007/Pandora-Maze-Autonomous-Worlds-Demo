@@ -22,7 +22,6 @@ contract PlayGameSystem is System {
       curTotalScore = 0;
       curStage = 0;
     }
-    // TODO verification
     (bool pass, uint score) = LibBlock.verify(_opts, gameConfig, curTotalScore + seed);
     curTotalScore += score;
     ++curStage;
@@ -34,8 +33,6 @@ contract PlayGameSystem is System {
     Score.set(playerEntity, uint32(curTotalScore));
     Stage.set(playerEntity, uint32(curStage));
   }
-
-  function verify(uint32[] calldata _opts, uint _seed) public pure returns (bool pass, uint score) {}
 
   function updateSeed() internal returns (bool updated, uint value) {
     value = Seed.getValue();

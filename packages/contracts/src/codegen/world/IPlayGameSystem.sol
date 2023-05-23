@@ -5,6 +5,4 @@ pragma solidity >=0.8.0;
 
 interface IPlayGameSystem {
   function game_playGame_verifyGamePlay(uint32[] calldata _opts) external;
-
-  function game_playGame_verify(uint32[] calldata _opts, uint _seed) external pure returns (bool pass, uint score);
 }
