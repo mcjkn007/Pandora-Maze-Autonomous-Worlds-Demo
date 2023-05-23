@@ -1,16 +1,17 @@
 const { regClass, property } = Laya;
 
  
-import {GameConfigType,defaultGameConfig,BlockType,ChessBoardUnitType, GameManagerEvent, RemoveRuleType, GameResultType, BlockStatusType} from '../common/Config'
+import {GameConfigType,BlockType,ChessBoardUnitType, GameManagerEvent, RemoveRuleType, GameResultType, BlockStatusType, GameConfig} from '../common/Config'
+import { NetMgr } from '../common/NetMgr';
 import { RandomMgr } from '../common/RandomMgr';
 import { gameCard } from '../game/gameCard';
 import { GameBase } from './Game.generated';
-
+import {  getComponentValue } from "@latticexyz/recs";
 @regClass()
 export class Game extends GameBase {
     
     randMgr:RandomMgr;
-   // 保存整个 "棋盘" 的每个格子状态（下标为格子起始点横纵坐标）
+ 
     chessBoard: ChessBoardUnitType[][] = [];
  
     res:Laya.PrefabImpl = null;
@@ -23,7 +24,7 @@ export class Game extends GameBase {
     curSlotNum:number = 0;
     slotArea:number[];
     score:number=0;
-    gameConfig:GameConfigType;
+    gameConfig:GameConfig;
     cardMoveSpeed:number = 1;
     slotCardMoveSpeed:number = 0.5;
     blockLevel:number = 0;
@@ -37,15 +38,69 @@ export class Game extends GameBase {
         await Laya.loader.load("resources/atlas/letter/letter.atlas", Laya.Loader.ATLAS).then((res)=> {
           this.card_res = res;
         });
+        const{
+          components:{GameConfigComponent},
+          network: { singletonEntity},
+
+        } = NetMgr.getInstance().GetMud();
+        const mapConfig = getComponentValue(GameConfigComponent, singletonEntity);
+         
+        this.initMap(mapConfig);
 
        
-        this.view.size(defaultGameConfig.viewWidth*defaultGameConfig.cardSize,defaultGameConfig.viewHeight*defaultGameConfig.cardSize);
+        this.view.size(this.gameConfig.viewWidth*this.gameConfig.cardSize,this.gameConfig.viewHeight*this.gameConfig.cardSize);
         Laya.stage.on(GameManagerEvent.TouchCard,this,this.onTouchCardEvent.bind(this));
         Laya.stage.on(GameManagerEvent.RestartGame,this,this.RestartGame.bind(this));
      
         Laya.Tween.to(this.Mask,{alpha:0},1500,Laya.Ease.linearIn);
-        this.onInitGame(defaultGameConfig);
+        this.onInitGame(this.gameConfig);
     }
+    initMap(mapConfig:any){
+      
+      this.gameConfig = {
+        slotNum:this.getConfigValue(mapConfig,GameConfigType.SlotNum),
+        composeNumMin:this.getConfigValue(mapConfig,GameConfigType.ComposeNumMin),
+        composeNumMax:this.getConfigValue(mapConfig,GameConfigType.ComposeNumMax),
+        typeNum:this.getConfigValue(mapConfig,GameConfigType.TypeNum),
+        levelBlockInitNum:this.getConfigValue(mapConfig,GameConfigType.LevelBlockInitNum),
+        borderStep:this.getConfigValue(mapConfig,GameConfigType.BorderStep),
+        levelNum:this.getConfigValue(mapConfig,GameConfigType.LevelNum),
+        cardSize:this.getConfigValue(mapConfig,GameConfigType.CardSize),
+        removeRule:this.getConfigValue(mapConfig,GameConfigType.RemoveRule),
+        viewWidth:this.getConfigValue(mapConfig,GameConfigType.ViewWidth),
+        viewHeight:this.getConfigValue(mapConfig,GameConfigType.ViewHeight),
+        totalRangeNum:this.getConfigValue(mapConfig,GameConfigType.TotalRangeNum),
+        stageNum:this.getConfigValue(mapConfig,GameConfigType.StageNum)
+
+      };
+     /*
+      this.gameConfig.composeNumMax = this.getConfigValue(mapConfig,GameConfigType.ComposeNumMax);
+      this.gameConfig.typeNum = this.getConfigValue(mapConfig,GameConfigType.TypeNum);
+      this.gameConfig.levelBlockInitNum = this.getConfigValue(mapConfig,GameConfigType.LevelBlockInitNum);
+      this.gameConfig.borderStep = this.getConfigValue(mapConfig,GameConfigType.BorderStep);
+      this.gameConfig.levelNum = this.getConfigValue(mapConfig,GameConfigType.LevelNum);
+      this.gameConfig.cardSize = this.getConfigValue(mapConfig,GameConfigType.CardSize);
+      this.gameConfig.removeRule = this.getConfigValue(mapConfig,GameConfigType.RemoveRule);
+      this.gameConfig.viewWidth = this.getConfigValue(mapConfig,GameConfigType.ViewWidth);
+      this.gameConfig.viewHeight = this.getConfigValue(mapConfig,GameConfigType.ViewHeight);
+      this.gameConfig.totalRangeNum = this.getConfigValue(mapConfig,GameConfigType.TotalRangeNum);
+      this.gameConfig.stageNum = this.getConfigValue(mapConfig,GameConfigType.StageNum);  
+      */
+    }
+    getConfigValue(config:any, configType:GameConfigType){
+      
+      let result = 0;
+      const _type = Number(configType);
+      if(_type < GameConfigType.ViewWidth){
+          const t = config.config1 >> BigInt(32*(_type));
+          result = Number(t % BigInt(2 ** 32));
+      }
+      else{
+          const t = config.config2 >>BigInt(32*(_type-Number(GameConfigType.ViewWidth)));
+          result = Number(t % BigInt(2 ** 32));
+      }
+      return result;
+}
     onActionFinishEvent(){
       Laya.Scene.open("resources/scene/Login.ls",true, null, null,null);
       Laya.Scene.close("resources/scene/Game.ls")
@@ -61,11 +116,11 @@ export class Game extends GameBase {
         return;
       }else if (type == 1){
         this.stageNum++;
-        if(this.stageNum == defaultGameConfig.stageNum){
+        if(this.stageNum == this.gameConfig.stageNum){
           this.onChangeScene();
         }
       }
-      this.onInitGame(defaultGameConfig);
+      this.onInitGame(this.gameConfig);
     }
     onTouchCardEvent(uid:number){
         console.log(uid);
@@ -81,25 +136,18 @@ export class Game extends GameBase {
         }
     }
     onTouchViewCardEvent(uid:number){
-        console.log('触摸：',uid);
-        
+         
         if(uid > this.cardBlocks.length){
-           // this.onPopDialog('没有此卡');
-           
             return;
         }
         let card = this.cardBlocks[uid];
-        console.log('类型',card.type);
         if(card.lowerThanBlocks.size != 0){
             for(let a of card.lowerThanBlocks){
               console.log(a);
             }
-          
-            //this.onPopDialog('不是最上面的卡');
             return;
         }
         if(card.status != 0){
-           // this.onPopDialog('已经被摸过了');
             return;
         }
         for (let x of card.higherThanBlocks){
@@ -121,6 +169,11 @@ export class Game extends GameBase {
         this.curSlotNum++;
         if(this.curSlotNum > this.gameConfig.slotNum)
         {
+          const{
+            systemCalls: { verifyGamePlay },
+          
+          } = NetMgr.getInstance().GetMud();
+          verifyGamePlay(this.playerOpCards);
             this.onPopResult(GameResultType.DEFEAT,this.score.toString());
             return; 
         }
@@ -163,7 +216,6 @@ export class Game extends GameBase {
     onTouchSlotCardEvent(uid:number){
    
         if(!this.cardNodeMap.has(uid)){
-          //  this.onPopDialog('卡片错误');
             return;
         }
         let flag = true;
@@ -240,7 +292,6 @@ export class Game extends GameBase {
             }
           } 
           if(n < this.gameConfig.composeNumMin){
-             // this.onPopDialog('没有到最低消除个数! ');
               return;
           }
           this.curSlotNum  -= n;
@@ -338,7 +389,7 @@ export class Game extends GameBase {
      
        
     }
-    onInitGame(gameConfig:GameConfigType){
+    onInitGame(gameConfig:GameConfig){
         this.gameConfig = gameConfig;
         this.chessBoard = [];
 
@@ -446,7 +497,7 @@ export class Game extends GameBase {
             levelBlocks.push(...nextGenBlocks);
             pos += nextBlockNum;
             // 生成块的坐标
-            this.genLevelBlockPos(defaultGameConfig,nextGenBlocks, minX, minY, maxX, maxY);
+            this.genLevelBlockPos(this.gameConfig,nextGenBlocks, minX, minY, maxX, maxY);
             leftBlockNum -= nextBlockNum;
             if (leftBlockNum <= 0) {
               break;
@@ -511,7 +562,7 @@ export class Game extends GameBase {
        // gameConfig.colorArray[type%gameConfig.colorNum]];
    // }
     genLevelBlockPos = (
-        gameConfig:GameConfigType,
+        gameConfig:GameConfig,
         blocks: BlockType[],
         minX: number,
         minY: number,
@@ -544,7 +595,7 @@ export class Game extends GameBase {
           this.genLevelRelation(gameConfig,block);
         }
       };
-      genLevelRelation = (gameConfig:GameConfigType,block: BlockType) => {
+      genLevelRelation = (gameConfig:GameConfig,block: BlockType) => {
         // 确定该块附近的格子坐标范围
         const minX = Math.max(block.x-gameConfig.cardSize, 0);
         const minY = Math.max(block.y-gameConfig.cardSize, 0);

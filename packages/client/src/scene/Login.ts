@@ -1,5 +1,6 @@
 const { regClass, property } = Laya;
-import { keccak256 } from '@latticexyz/utils';
+import { NetMgr } from '../common/NetMgr';
+import { setup } from '../mud/setup';
 import { LoginBase } from './Login.generated';
  
 @regClass()
@@ -9,14 +10,26 @@ export class Login extends LoginBase {
  
     result:any;
 
-    async onAwake() {
+    onAwake() {
         console.log("Login start");
-        
+
+    
         this.Start_Button.on(Laya.Event.CLICK,this,this.onStartButtenEvent.bind(this));
         this.Rank_Button.on(Laya.Event.CLICK,this,this.onRankButtenEvent.bind(this));
 
-        Laya.Tween.to(this.Mask,{alpha:0},1200,Laya.Ease.linearIn);
-       
+        setup().then( async (result)=>{
+            const net = NetMgr.getInstance();
+            net.SetMud(result);
+            console.log('load mud success');
+            result.components.GameConfigComponent.update$.subscribe((update) => {
+                
+                const [nextValue, prevValue] = update.value;
+                console.log('GameConfigComponent--- ',update);
+     
+               
+              });
+          });
+ 
         /*
         this.result = await setup();
         console.log('-----');
@@ -26,6 +39,9 @@ export class Login extends LoginBase {
             this.onChangeScene();
         }
         */
+    }
+    onOpened(param: any): void {
+        Laya.Tween.to(this.Mask,{alpha:0},1200,Laya.Ease.linearIn);
     }
     onActionFinishEvent(){
         this.onChangeScene();

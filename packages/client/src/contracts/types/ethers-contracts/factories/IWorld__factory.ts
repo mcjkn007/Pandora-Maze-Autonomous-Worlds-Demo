@@ -418,6 +418,55 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "game_joinGame_joinGame",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32[]",
+        name: "_opts",
+        type: "uint32[]",
+      },
+      {
+        internalType: "uint256",
+        name: "_seed",
+        type: "uint256",
+      },
+    ],
+    name: "game_playGame_verify",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "pass",
+        type: "bool",
+      },
+      {
+        internalType: "uint256",
+        name: "score",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32[]",
+        name: "_opts",
+        type: "uint32[]",
+      },
+    ],
+    name: "game_playGame_verifyGamePlay",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes32",
@@ -635,19 +684,6 @@ const _abi = [
     ],
     name: "grantAccess",
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "increment",
-    outputs: [
-      {
-        internalType: "uint32",
-        name: "",
-        type: "uint32",
-      },
-    ],
     stateMutability: "nonpayable",
     type: "function",
   },

@@ -2,6 +2,11 @@
   "_$ver": 1,
   "_$id": "oufhqpla",
   "_$runtime": "res://b33edd45-b3d0-4823-b4f3-d9d1f05f0101",
+  "_$preloads": [
+    "res://1d491e14-ad32-4375-9550-d33ab93ecc1d",
+    "res://81c10059-6fa5-457d-862c-0892168edb15",
+    "res://00000000-0000-0000-0001-000000000001"
+  ],
   "_$type": "Scene",
   "left": 0,
   "right": 0,
@@ -91,6 +96,27 @@
               "padding": "0,0,0,0"
             }
           ]
+        },
+        {
+          "_$id": "5evht7u3",
+          "_$type": "Label",
+          "name": "Label",
+          "x": 960,
+          "y": 130,
+          "width": 800,
+          "height": 100,
+          "anchorX": 0.5,
+          "anchorY": 0.5,
+          "top": 80,
+          "centerX": 0,
+          "text": "Pandora Maze",
+          "font": "res://26b90808-0a80-4bc0-8904-488eed49d5f7",
+          "fontSize": 100,
+          "color": "rgba(255, 255, 255, 1)",
+          "align": "center",
+          "valign": "middle",
+          "leading": 0,
+          "padding": "0,0,0,0"
         }
       ]
     },

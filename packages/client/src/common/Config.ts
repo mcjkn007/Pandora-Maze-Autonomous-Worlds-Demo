@@ -19,8 +19,25 @@ export const enum GameManagerEvent {
     TouchCard = 'TouchCard',
     RestartGame = 'RestartGame'
 };
+
+export enum GameConfigType {
+      SlotNum,
+      ComposeNumMin,
+      ComposeNumMax,
+      TypeNum,
+      LevelBlockInitNum,
+      BorderStep,
+      LevelNum,
+      CardSize,
+      ViewWidth,
+      ViewHeight,
+      TotalRangeNum,
+      StageNum,
+      RemoveRule
+    }
+    
   
-export interface GameConfigType {
+export interface GameConfig {
    
       slotNum: number;
       
@@ -72,7 +89,7 @@ export interface ChessBoardUnitType {
       blocks: BlockType[];
 };
 
-export const defaultGameConfig: GameConfigType = {
+export const defaultGameConfig: GameConfig = {
       
       slotNum: 9,
   

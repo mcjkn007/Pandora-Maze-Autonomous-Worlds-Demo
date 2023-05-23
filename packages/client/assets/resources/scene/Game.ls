@@ -90,7 +90,6 @@
       "name": "Mask",
       "width": 1920,
       "height": 1080,
-      "alpha": 0,
       "skin": "res://00000000-0000-0000-0001-000000000001",
       "color": "#ffffff"
     }

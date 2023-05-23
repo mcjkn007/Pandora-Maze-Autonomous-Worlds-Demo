@@ -35,6 +35,9 @@ export interface IWorldInterface extends utils.Interface {
     "deleteRecord(bytes16,bytes16,bytes32[])": FunctionFragment;
     "emitEphemeralRecord(bytes16,bytes16,bytes32[],bytes)": FunctionFragment;
     "emitEphemeralRecord(bytes32,bytes32[],bytes)": FunctionFragment;
+    "game_joinGame_joinGame()": FunctionFragment;
+    "game_playGame_verify(uint32[],uint256)": FunctionFragment;
+    "game_playGame_verifyGamePlay(uint32[])": FunctionFragment;
     "getField(bytes32,bytes32[],uint8)": FunctionFragment;
     "getFieldLength(bytes32,bytes32[],uint8,bytes32)": FunctionFragment;
     "getFieldSlice(bytes32,bytes32[],uint8,bytes32,uint256,uint256)": FunctionFragment;
@@ -43,7 +46,6 @@ export interface IWorldInterface extends utils.Interface {
     "getRecord(bytes32,bytes32[])": FunctionFragment;
     "getSchema(bytes32)": FunctionFragment;
     "grantAccess(bytes16,bytes16,address)": FunctionFragment;
-    "increment()": FunctionFragment;
     "installModule(address,bytes)": FunctionFragment;
     "installRootModule(address,bytes)": FunctionFragment;
     "isStore()": FunctionFragment;
@@ -79,6 +81,9 @@ export interface IWorldInterface extends utils.Interface {
       | "deleteRecord(bytes16,bytes16,bytes32[])"
       | "emitEphemeralRecord(bytes16,bytes16,bytes32[],bytes)"
       | "emitEphemeralRecord(bytes32,bytes32[],bytes)"
+      | "game_joinGame_joinGame"
+      | "game_playGame_verify"
+      | "game_playGame_verifyGamePlay"
       | "getField"
       | "getFieldLength"
       | "getFieldSlice"
@@ -87,7 +92,6 @@ export interface IWorldInterface extends utils.Interface {
       | "getRecord(bytes32,bytes32[])"
       | "getSchema"
       | "grantAccess"
-      | "increment"
       | "installModule"
       | "installRootModule"
       | "isStore"
@@ -154,6 +158,18 @@ export interface IWorldInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "game_joinGame_joinGame",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "game_playGame_verify",
+    values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "game_playGame_verifyGamePlay",
+    values: [PromiseOrValue<BigNumberish>[]]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getField",
     values: [
       PromiseOrValue<BytesLike>,
@@ -209,7 +225,6 @@ export interface IWorldInterface extends utils.Interface {
       PromiseOrValue<string>
     ]
   ): string;
-  encodeFunctionData(functionFragment: "increment", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "installModule",
     values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
@@ -433,6 +448,18 @@ export interface IWorldInterface extends utils.Interface {
     functionFragment: "emitEphemeralRecord(bytes32,bytes32[],bytes)",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "game_joinGame_joinGame",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "game_playGame_verify",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "game_playGame_verifyGamePlay",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "getField", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getFieldLength",
@@ -459,7 +486,6 @@ export interface IWorldInterface extends utils.Interface {
     functionFragment: "grantAccess",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "increment", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "installModule",
     data: BytesLike
@@ -694,6 +720,21 @@ export interface IWorld extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    game_joinGame_joinGame(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    game_playGame_verify(
+      _opts: PromiseOrValue<BigNumberish>[],
+      _seed: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[boolean, BigNumber] & { pass: boolean; score: BigNumber }>;
+
+    game_playGame_verifyGamePlay(
+      _opts: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     getField(
       table: PromiseOrValue<BytesLike>,
       key: PromiseOrValue<BytesLike>[],
@@ -746,10 +787,6 @@ export interface IWorld extends BaseContract {
       namespace: PromiseOrValue<BytesLike>,
       name: PromiseOrValue<BytesLike>,
       grantee: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    increment(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -981,6 +1018,21 @@ export interface IWorld extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  game_joinGame_joinGame(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  game_playGame_verify(
+    _opts: PromiseOrValue<BigNumberish>[],
+    _seed: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<[boolean, BigNumber] & { pass: boolean; score: BigNumber }>;
+
+  game_playGame_verifyGamePlay(
+    _opts: PromiseOrValue<BigNumberish>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   getField(
     table: PromiseOrValue<BytesLike>,
     key: PromiseOrValue<BytesLike>[],
@@ -1033,10 +1085,6 @@ export interface IWorld extends BaseContract {
     namespace: PromiseOrValue<BytesLike>,
     name: PromiseOrValue<BytesLike>,
     grantee: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  increment(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1268,6 +1316,19 @@ export interface IWorld extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    game_joinGame_joinGame(overrides?: CallOverrides): Promise<void>;
+
+    game_playGame_verify(
+      _opts: PromiseOrValue<BigNumberish>[],
+      _seed: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[boolean, BigNumber] & { pass: boolean; score: BigNumber }>;
+
+    game_playGame_verifyGamePlay(
+      _opts: PromiseOrValue<BigNumberish>[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     getField(
       table: PromiseOrValue<BytesLike>,
       key: PromiseOrValue<BytesLike>[],
@@ -1322,8 +1383,6 @@ export interface IWorld extends BaseContract {
       grantee: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    increment(overrides?: CallOverrides): Promise<number>;
 
     installModule(
       module: PromiseOrValue<string>,
@@ -1600,6 +1659,21 @@ export interface IWorld extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    game_joinGame_joinGame(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    game_playGame_verify(
+      _opts: PromiseOrValue<BigNumberish>[],
+      _seed: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    game_playGame_verifyGamePlay(
+      _opts: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     getField(
       table: PromiseOrValue<BytesLike>,
       key: PromiseOrValue<BytesLike>[],
@@ -1652,10 +1726,6 @@ export interface IWorld extends BaseContract {
       namespace: PromiseOrValue<BytesLike>,
       name: PromiseOrValue<BytesLike>,
       grantee: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    increment(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1888,6 +1958,21 @@ export interface IWorld extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    game_joinGame_joinGame(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    game_playGame_verify(
+      _opts: PromiseOrValue<BigNumberish>[],
+      _seed: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    game_playGame_verifyGamePlay(
+      _opts: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     getField(
       table: PromiseOrValue<BytesLike>,
       key: PromiseOrValue<BytesLike>[],
@@ -1940,10 +2025,6 @@ export interface IWorld extends BaseContract {
       namespace: PromiseOrValue<BytesLike>,
       name: PromiseOrValue<BytesLike>,
       grantee: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    increment(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
