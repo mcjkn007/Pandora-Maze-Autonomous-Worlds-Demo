@@ -14,5 +14,11 @@ enum GameConfigType {
   ViewWidth,
   ViewHeight,
   TotalRangeNum,
-  StageNum
+  StageNum,
+  RemoveRule
+}
+
+enum RemoveRuleType {
+  Continue,
+  Discrete
 }

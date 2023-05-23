@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 import { GameConfigComponentData as GameConfig} from "../codegen/Tables.sol";
 import { LibConfig} from "./LibConfig.sol";
 import { LibRand} from "./LibRand.sol";
-import { GameConfigType } from "../codegen/Types.sol";
+import { GameConfigType, RemoveRuleType } from "../codegen/Types.sol";
 
 struct BlockType {
     uint32 id;
@@ -23,7 +23,182 @@ library LibBlock {
   /*
    * @dev Return the final score if the given _opts is valid according to _config and _seed.
    */
-  function Verify(uint32[] calldata _opts, GameConfig memory _config, uint _seed) public pure returns (bool pass, uint score) {}
+  function Verify(uint32[] calldata _opts, GameConfig memory _config, uint _seed) public pure returns (bool pass, uint score) {
+    BlockType[] memory blocks = CreateBlocks(_config, _seed);
+    uint blockLength = blocks.length;
+    uint8[] memory statusChecker = new uint8[](blockLength);
+    /*
+     * if slotNum = 7, slots would be like(id*=id+1, type*=type+1):
+     *   index: 0 ....  6    7 ..... 13
+     *   value: id* .. id* type* .. type*
+     */
+    uint[] memory slots = new uint[](LibConfig.getConfigValue(_config, GameConfigType.SlotNum) * 2);
+    uint optsLength = _opts.length;
+    for (uint i; i < optsLength; ++i) {
+      uint id = _opts[i];
+      if (statusChecker[id] == 0) {
+        if (moveBlockIntoSlot(blocks, slots, id)) {
+          return (pass, score);
+        }
+        ++statusChecker[id];
+      } else if (statusChecker[id] == 1) {
+        (uint obtainedScore, uint[] memory clearedBlocks) = clearSlot(_config, slots, id+1, uint(blocks[id].blockType)+1);
+        score += obtainedScore;
+        uint maxMatch = clearedBlocks.length;
+        for (uint j; j < maxMatch; ++j) {
+          uint cleared = clearedBlocks[j];
+          if (cleared == 0) {
+            break;
+          }
+          ++statusChecker[--cleared];
+        }
+      } else {
+        revert("this block has already been cleared");
+      }
+    }
+
+    // check whether there is still uncleared block
+    uint sum;
+    for (uint i; i < blockLength; ++i) {
+      sum += statusChecker[i];
+    }
+    if (sum == blockLength * 2) {
+      pass = true;
+    } else {
+      revert("game not complete");
+    }
+  }
+
+  function moveBlockIntoSlot(BlockType[] memory _blocks, uint[] memory _slots, uint _id) internal pure returns (bool isOver){
+    BlockType memory targetBlk = _blocks[_id];
+    require(targetBlk.lowerThanBlocks[0] == 0, "moving a block not on top");
+    uint slotNum = _slots.length / 2;
+    for (uint i; i < slotNum; ++i) {
+      if (_slots[i] == 0) {
+        // In order to find unset slot by default value 0, we increment id and type inserted into slot by 1.
+        _slots[i] = _id + 1;
+        _slots[i+slotNum] = uint(targetBlk.blockType) + 1;
+        uint hLength = targetBlk.higherThanBlocks.length;
+        for (uint j; j < hLength; ++j) {
+          uint currentId = uint(targetBlk.higherThanBlocks[j]);
+          if (currentId == 0) {
+            break;
+          }
+          --currentId;
+          BlockType memory currentBlk = _blocks[currentId];
+          uint lLength = currentBlk.lowerThanBlocks.length;
+          for (uint k; k < lLength; ++k) {
+            if (uint(currentBlk.lowerThanBlocks[k]) == _id + 1) {
+              currentBlk.lowerThanBlocks[k] = 0;
+              break;
+            }
+            // note what if we don't find block _id in blk's lowerThanBlocks?
+          }
+          _blocks[currentId] = currentBlk;
+        }
+        return isOver;
+      }
+    }
+    isOver = true;
+  }
+
+  /*
+   * @dev Return the obtained score for this clearing operation.
+   */
+  function clearSlot(GameConfig memory _config, uint[] memory _slots, uint _id, uint _type) internal pure returns (uint256, uint[] memory) {
+    uint minMatch = uint(LibConfig.getConfigValue(_config, GameConfigType.ComposeNumMin));
+    uint maxMatch = uint(LibConfig.getConfigValue(_config, GameConfigType.ComposeNumMax));
+    uint8 removeRule = uint8(LibConfig.getConfigValue(_config, GameConfigType.RemoveRule));
+    require(minMatch <= maxMatch, "minMatch should be less than or equal to maxMatch");
+    if (removeRule == uint8(RemoveRuleType.Continue)) {
+      return clearContinueSlot(_slots, minMatch, maxMatch, _id);
+    } else {
+      return clearDiscreteSlot(_slots, minMatch, maxMatch, _id, _type);
+    }
+  }
+
+  function clearDiscreteSlot(uint[] memory _slots, uint _minMatch, uint _maxMatch, uint _id, uint _type) internal pure returns (uint256, uint[] memory) {
+    uint slotNum = _slots.length / 2;
+    uint[] memory clearedBlocks = new uint[](_maxMatch);
+    uint matchNum;
+
+    {
+      bool targetIncluded;
+      for (uint i; i < slotNum; ++i) {
+        if (matchNum == _maxMatch) {
+          if (!targetIncluded) {
+            clearedBlocks[_maxMatch-1] = _id;
+          }
+          break;
+        }
+        if (_slots[i+slotNum] == _type) {
+          if (_slots[i] == _id) {
+            targetIncluded = true;
+          }
+          clearedBlocks[matchNum] = _slots[i];
+          ++matchNum;
+        }
+      }
+    }
+
+    if (matchNum < _minMatch) {
+      revert("insufficient match number");
+    }    
+
+    for ((uint i, uint j)=(0, 0); i < slotNum; ++i) {
+      while (j < _maxMatch && _slots[i+j] == clearedBlocks[j]) {
+        ++j;
+      }
+      (_slots[i], _slots[i+slotNum]) = (i+j) < slotNum ? (_slots[i+j], _slots[i+j+slotNum]) : (0, 0);
+    }
+
+    return (1 << (matchNum - _minMatch), clearedBlocks);
+  }
+
+  function clearContinueSlot(uint[] memory _slots, uint _minMatch, uint _maxMatch, uint _id) internal pure returns (uint256, uint[] memory) {
+    uint slotNum = _slots.length / 2;
+    for (uint i; i < slotNum; ++i) {
+      // find the target slot i
+      if (_slots[i] == _id) {
+        uint matchNum = 1;
+        uint clearFrom = i;
+        // iterate slots before i
+        for (uint j = i; j > 0 ; --j) {
+          // when a slot ahead has different type
+          if (_slots[j+slotNum-1] != _slots[j+slotNum]) {
+            break;
+          }
+          ++matchNum;
+          --clearFrom;
+        }
+        // iterate slots after i
+        for (uint j = i + 1; j < slotNum; ++j) {
+          // when a followed slot has different type
+          if (_slots[j+slotNum] != _slots[j+slotNum-1]) {
+            break;
+          }
+          ++matchNum;
+        }
+        // check for sufficient match number
+        if (matchNum >= _minMatch) {
+          if (matchNum > _maxMatch) {
+            matchNum = _maxMatch;
+          }
+          uint[] memory clearedBlocks = new uint[](_maxMatch);
+          for (uint j; j < matchNum; ++j) {
+            clearedBlocks[j] = _slots[j+clearFrom];
+          }
+          for (uint j = clearFrom; j < slotNum; ++j) {
+            (_slots[j], _slots[j+slotNum]) = (j+matchNum) < slotNum ? (_slots[j+matchNum], _slots[j+matchNum+slotNum]) : (0, 0);
+          }
+          return (1 << (matchNum - _minMatch), clearedBlocks);
+        }
+        revert("insufficient match number");
+      }
+    }
+    // should not happen
+    revert("serious error: no matched slot");
+  }
   
   function CreateBlocks(GameConfig memory gameConfig , uint256 seed) public pure returns (BlockType[] memory) {
     uint32 blockNumUnit = getBlockNumUnit(gameConfig);
