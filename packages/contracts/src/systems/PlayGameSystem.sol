@@ -23,7 +23,7 @@ contract PlayGameSystem is System {
       curStage = 0;
     }
     // TODO verification
-    (bool pass, uint score) = LibBlock.Verify(_opts, gameConfig, curTotalScore + seed);
+    (bool pass, uint score) = LibBlock.verify(_opts, gameConfig, curTotalScore + seed);
     curTotalScore += score;
     ++curStage;
     if (!pass || curStage == stageNum) {
