@@ -5,12 +5,89 @@ import { defineComponent, Type as RecsType, World } from "@latticexyz/recs";
 
 export function defineContractComponents(world: World) {
   return {
-    Counter: (() => {
-      const tableId = new TableId("", "Counter");
+    PlayerComponent: (() => {
+      const tableId = new TableId("", "PlayerComponent");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.Boolean,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    SeedComponent: (() => {
+      const tableId = new TableId("", "SeedComponent");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.BigInt,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    StageComponent: (() => {
+      const tableId = new TableId("", "StageComponent");
       return defineComponent(
         world,
         {
           value: RecsType.Number,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    ScoreComponent: (() => {
+      const tableId = new TableId("", "ScoreComponent");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.Number,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    RankComponent: (() => {
+      const tableId = new TableId("", "RankComponent");
+      return defineComponent(
+        world,
+        {
+          addr: RecsType.StringArray,
+          score: RecsType.NumberArray,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    GameConfigComponent: (() => {
+      const tableId = new TableId("", "GameConfigCompon");
+      return defineComponent(
+        world,
+        {
+          config1: RecsType.BigInt,
+          config2: RecsType.BigInt,
         },
         {
           metadata: {
