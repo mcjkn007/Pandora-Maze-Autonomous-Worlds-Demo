@@ -3,10 +3,6 @@ import { mudConfig } from "@latticexyz/world/register";
 export default mudConfig({
   namespace: "game",
   systems: {
-    IncrementSystem: {
-      name: "increment",
-      openAccess: true,
-    },
     JoinGameSystem: {
       name: "joinGame",
       openAccess: true,
@@ -22,10 +18,6 @@ export default mudConfig({
     RemoveRuleType: ["Continue", "Discrete"],
   },
   tables: {
-    Counter: {
-      keySchema: {},
-      schema: "uint32",
-    },
     PlayerComponent:"bool",
     SeedComponent: {
       keySchema: {},

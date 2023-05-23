@@ -23,7 +23,7 @@ library LibBlock {
   /*
    * @dev Return the final score if the given _opts is valid according to _config and _seed.
    */
-  function Verify(uint32[] calldata _opts, GameConfig memory _config, uint _seed) public pure returns (bool pass, uint score) {
+  function Verify(uint32[] calldata _opts, GameConfig memory _config, uint _seed) internal pure returns (bool pass, uint score) {
     BlockType[] memory blocks = CreateBlocks(_config, _seed);
     uint blockLength = blocks.length;
     uint8[] memory statusChecker = new uint8[](blockLength);
@@ -200,7 +200,7 @@ library LibBlock {
     revert("serious error: no matched slot");
   }
   
-  function CreateBlocks(GameConfig memory gameConfig , uint256 seed) public pure returns (BlockType[] memory) {
+  function CreateBlocks(GameConfig memory gameConfig , uint256 seed) internal pure returns (BlockType[] memory) {
     uint32 blockNumUnit = getBlockNumUnit(gameConfig);
     require(blockNumUnit < (1 << 32) - 1, "too many blocks, should be less than (1<<32)-1");
     BlockType[] memory AllBlockArray = new BlockType[](blockNumUnit);

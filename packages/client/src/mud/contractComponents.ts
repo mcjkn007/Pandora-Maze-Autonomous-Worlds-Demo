@@ -6,7 +6,7 @@ import { defineComponent, Type as RecsType, World } from "@latticexyz/recs";
 export function defineContractComponents(world: World) {
   return {
     PlayerComponent: (() => {
-      const tableId = new TableId("", "PlayerComponent");
+      const tableId = new TableId("game", "PlayerComponent");
       return defineComponent(
         world,
         {
@@ -21,11 +21,13 @@ export function defineContractComponents(world: World) {
       );
     })(),
     SeedComponent: (() => {
-      const tableId = new TableId("", "SeedComponent");
+      const tableId = new TableId("game", "SeedComponent");
       return defineComponent(
         world,
         {
           value: RecsType.BigInt,
+          updatePeriod: RecsType.BigInt,
+          startFrom: RecsType.BigInt,
         },
         {
           metadata: {
@@ -36,7 +38,7 @@ export function defineContractComponents(world: World) {
       );
     })(),
     StageComponent: (() => {
-      const tableId = new TableId("", "StageComponent");
+      const tableId = new TableId("game", "StageComponent");
       return defineComponent(
         world,
         {
@@ -51,7 +53,7 @@ export function defineContractComponents(world: World) {
       );
     })(),
     ScoreComponent: (() => {
-      const tableId = new TableId("", "ScoreComponent");
+      const tableId = new TableId("game", "ScoreComponent");
       return defineComponent(
         world,
         {
@@ -66,7 +68,7 @@ export function defineContractComponents(world: World) {
       );
     })(),
     RankComponent: (() => {
-      const tableId = new TableId("", "RankComponent");
+      const tableId = new TableId("game", "RankComponent");
       return defineComponent(
         world,
         {
@@ -82,7 +84,7 @@ export function defineContractComponents(world: World) {
       );
     })(),
     GameConfigComponent: (() => {
-      const tableId = new TableId("", "GameConfigCompon");
+      const tableId = new TableId("game", "GameConfigCompon");
       return defineComponent(
         world,
         {
