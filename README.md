@@ -1,7 +1,5 @@
 # Pandora-Maze-Autonomous-Worlds-Demo
 
-Vigilant is an on-chain world defined by runes, not just a game. Adventurers collect rune NFTs to craft game rules. We've created a card game to highlight runes' charm. Collect five runes to form battle cards and conquer in Vigilant's games.
-
 ## Project Description
 Pandora Maze is a Match-3 roguelike game fully on-chain, incorporating elements of Greek characters. There are two game modes in Pandora Maze: Competition Mode, Free Mode, and in Free Mode, players can create custom levels, giving the game rich openness and composability.
 
